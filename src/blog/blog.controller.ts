@@ -1,7 +1,8 @@
-import { Controller, Get, Res, HttpStatus, Param, NotFoundException, Post, Body, Put, Query, Delete } from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus, Param, NotFoundException, Post, Body, Put, Query, Delete, UseGuards } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreatePostDTO } from './dto/create-post.dto';
 import { ValidateObjectId } from './shared/pipes/validate-object-id.pipes';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('blog')
 export class BlogController {
@@ -10,6 +11,7 @@ export class BlogController {
 
   // Submit a post
   @Post('/post')
+  @UseGuards(JwtAuthGuard)
   async addPost(@Res() res, @Body() createPostDTO: CreatePostDTO) {
     const newPost = await this.blogService.addPost(createPostDTO);
     return res.status(HttpStatus.OK).json({
@@ -36,6 +38,7 @@ export class BlogController {
   }
 
   @Put('/edit')
+  @UseGuards(JwtAuthGuard)
   async editPost(
     @Res() res,
     @Query('postID', new ValidateObjectId()) postID,
@@ -52,6 +55,7 @@ export class BlogController {
   }
   // Delete a post using ID
   @Delete('/delete')
+  @UseGuards(JwtAuthGuard)
   async deletePost(@Res() res, @Query('postID', new ValidateObjectId()) postID) {
     const deletedPost = await this.blogService.deletePost(postID);
     if (!deletedPost) {
